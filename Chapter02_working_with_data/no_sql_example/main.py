@@ -1,14 +1,29 @@
 from database import user_collection
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, field_validator
 from bson import ObjectId
 
 app = FastAPI()
 
 
+class Tweet(BaseModel):
+    content: str
+    hastags: list[str]
+
+
 class User(BaseModel):
     name: str
-    email: str
+    email: EmailStr
+    age: int
+    tweets: list[Tweet] | None = None
+
+    @field_validator("age")
+    def validate_age(cls, value):
+        if value < 18 or value > 100:
+            raise ValueError(
+                "Age must be between 18 and 100"
+            )
+        return value
 
 
 # inherit all User and then add id

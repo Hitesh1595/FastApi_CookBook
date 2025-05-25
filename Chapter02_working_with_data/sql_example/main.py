@@ -1,5 +1,5 @@
 from fastapi import Depends, FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 from sqlalchemy.orm import Session
 from database import SessionLocal, User
 
@@ -23,7 +23,7 @@ def read_users(db: Session = Depends(get_db)):
 
 class UserBody(BaseModel):
     name: str
-    email: str
+    email: EmailStr
 
 
 @app.post("/user")
