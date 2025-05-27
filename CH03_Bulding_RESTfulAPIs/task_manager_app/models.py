@@ -9,4 +9,3 @@ class Task(BaseModel):
 
 class TaskWithID(Task):
     id: int
-

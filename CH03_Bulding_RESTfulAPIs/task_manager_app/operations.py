@@ -5,9 +5,7 @@ from models import Task, TaskWithID
 
 DATABASE_FILENAME = "tasks.csv"
 
-column_fields = [
-    "id", "title", "description", "status"
-]
+column_fields = ["id", "title", "description", "status"]
 
 
 def read_all_tasks() -> list[TaskWithID]:
@@ -41,7 +39,7 @@ def get_next_id():
 
 def write_task_into_csv(task: TaskWithID):
     with open(DATABASE_FILENAME, mode="a", newline="") as file:
-        writer = csv.DictReader(file, fieldnames=column_fields,
+        writer = csv.DictWriter(file, fieldnames=column_fields,
                                 )
         writer.writerow(task.model_dump())
 
@@ -56,17 +54,17 @@ def create_task(task: Task) -> TaskWithID:
 
 
 def modify_task(id: int, task: dict) -> Optional[TaskWithID]:
-    updated_task = Optional[TaskWithID] = None
+    updated_task: Optional[TaskWithID] = None
     tasks = read_all_tasks()
     for number, task_ in enumerate(tasks):
         if task_.id == id:
             tasks[number] = (updated_task) = task_.model_copy(update=task)
 
     with open(DATABASE_FILENAME, mode="w", newline="") as csvfile:
-        writer = csv.DictReader(csvfile, fieldnames=column_fields)
-        writer.writerheader()
+        writer = csv.DictWriter(csvfile, fieldnames=column_fields)
+        writer.writeheader()
         for task in tasks:
-            writer.writerrow(task.model_dump())
+            writer.writerow(task.model_dump())
 
     if updated_task:
         return updated_task
