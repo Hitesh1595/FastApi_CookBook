@@ -1,26 +1,71 @@
 from fastapi import FastAPI
+from typing import Optional
 from pydantic import BaseModel
 
 from fastapi.exceptions import HTTPException
 from models import (
     Task,
-    TaskWithID
+    TaskWithID,
+    TaskV2WithID
 )
 from operations import (
     read_all_tasks,
+    read_all_tasks_v2,
     read_task,
     create_task,
     modify_task,
     remove_task
 )
 
+# VERSIONING
+# Besides the URL-based approach that we used in the recipe, there are other common approaches to
+# API versioning, such as the following:
+# • Query parameter versioning: Version information is passed as a query parameter in the API
+# request. For example, see the following:
+# https://api.example.com/resource?version=1
+# This method keeps the base URL uniform across versions.
+# • Header versioning: The version is specified in a custom header of the HTTP request:
+# GET /resource HTTP/1.1
+# Host: api.example.com
+# X-API-Version: 1
+# This keeps the URL clean but requires clients to explicitly set the version in their requests.
+# • Consumer-based versioning: This strategy allows customers to choose the version they need.
+# The version available at their first interaction is saved with their details and used in all future
+# interactions unless they make changes.
+
+# Postman Blog API Versioning: https://www.postman.com/api-platform/
+# api-versioning/
+
 app = FastAPI()
 
 
 @app.get("/tasks", response_model=list[TaskWithID])
-def get_tasks():
+def get_tasks(status: Optional[str] = None, title: Optional[str] = None):
     tasks = read_all_tasks()
+    if status:
+        tasks = [task for task in tasks if task.status == status]
+    if title:
+        tasks = [task for task in tasks if task.title == title]
+
     return tasks
+
+
+@app.get("/v2/tasks", response_model=list[TaskV2WithID])
+def get_tasks_v2():
+    tasks = read_all_tasks_v2()
+    return tasks
+
+
+@app.get("/tasks/search", response_model=list[TaskWithID])
+def search_tasks(keyword: str):
+    tasks = read_all_tasks()
+    filtered_tasks = [
+        task for task in tasks
+        if keyword.lower()
+        in (task.title + task.description).lower()
+    ]
+    return filtered_tasks
+
 
 
 @app.get("/task/{task_id}")
