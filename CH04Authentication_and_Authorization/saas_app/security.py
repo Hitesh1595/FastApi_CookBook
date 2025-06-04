@@ -33,13 +33,12 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 from jose import jwt , JWTError
-from datetime import  timedelta
-import datetime
+from datetime import datetime, timedelta
 
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    expire = datetime.now(datetime.timezone.utc) + timedelta(
+    expire = datetime.utcnow() + timedelta(
         minutes=ACCESS_TOKEN_EXPIRE_MINUTES
     )
     to_encode.update({"exp": expire})
@@ -142,3 +141,4 @@ def read_user_me(token: str = Depends(oauth2_scheme), session: Session = Depends
     return {
         "description": f"{user.username} authorized",
     }
+
