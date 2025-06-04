@@ -1,4 +1,9 @@
 from passlib.context import CryptContext
+from email_validator import (
+    EmailNotValidError,
+    validate_email,
+)
+
 
 pwd_context = CryptContext(
     schemes=["bcrypt"], deprecated="auto"
@@ -28,3 +33,19 @@ def add_user(session: Session, username: str, password: str, email: str)-> User 
         return
 
     return db_user
+
+
+def get_user(
+    session: Session, username_or_email: str
+) -> User | None:
+    try:
+        validate_email(username_or_email)
+        query_filter = User.email
+    except EmailNotValidError:
+        query_filter = User.username
+    user = (
+        session.query(User)
+        .filter(query_filter == username_or_email)
+        .first()
+    )
+    return user

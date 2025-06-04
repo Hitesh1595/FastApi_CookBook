@@ -23,3 +23,4 @@ In this chapter, we’re going to cover the following recipes:
 
 $ pip install passlib[bcrypt]
 $ pip install sqlalchemy>=2.0.0
+$ pip install python-jose[cryptography]

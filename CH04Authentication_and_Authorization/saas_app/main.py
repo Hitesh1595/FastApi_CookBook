@@ -1,13 +1,11 @@
 from contextlib import asynccontextmanager
 
-from typing import Annotated
-from sqlalchemy.orm import session
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.orm import Session
 
 
 from fastapi import FastAPI
-from db_connections import (
+from db_connection import (
     get_engine,
     get_session,
 )
@@ -21,6 +19,7 @@ from responses import (
     UserCreateBody,
     UserCreateResponse,
 )
+import security
 
 
 @asynccontextmanager
@@ -35,6 +34,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(
     title="Saas application", lifespan=lifespan
 )
+app.include_router(security.router)
 
 
 
@@ -67,18 +67,3 @@ def register(user: UserCreateBody,
     }
 
 
-
-
-# for testting purpose only
-from typing import List
-
-@app.get(
-    "/users",
-    response_model=List[UserCreateResponse],
-    status_code=status.HTTP_200_OK,
-)
-def get_all_users(session: Session = Depends(get_session)) -> List[UserCreateResponse]:
-    users = session.query(User).all()
-    return [UserCreateResponse(**user.__dict__) for user in users]
-
-# object return convert into dict
