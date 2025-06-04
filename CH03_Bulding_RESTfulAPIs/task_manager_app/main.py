@@ -36,7 +36,36 @@ from operations import (
 # Postman Blog API Versioning: https://www.postman.com/api-platform/
 # api-versioning/
 
-app = FastAPI()
+from fastapi.openapi.utils import get_openapi
+
+# • Metadata and Docs URLs: https://fastapi.tiangolo.com/tutorial/metadata/
+# • FastAPI Features: https://fastapi.tiangolo.com/features/
+# • Extending OpenAPI: https://fastapi.tiangolo.com/how-to/extending-openapi/
+
+
+# hide the /token endpoint from the documentation.
+def custom_openapi():
+    if app.openapi_schema:
+        return app.openapi_schema
+
+    openapi_schema = get_openapi(
+        title="Customized Title",
+        version="2.0.0",
+        description="This is a custom OpenAPI schema",
+        routes=app.routes,
+    )
+    del openapi_schema["paths"]["/token"]
+    app.openapi_schema = openapi_schema
+    return app.openapi_schema
+
+
+app = FastAPI(
+    title="Task Manager API",
+    description="This is a task management API",
+    version="0.1.0"
+)
+
+app.openapi = custom_openapi
 
 
 @app.get("/tasks", response_model=list[TaskWithID])
