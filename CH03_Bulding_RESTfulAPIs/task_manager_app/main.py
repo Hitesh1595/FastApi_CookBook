@@ -113,3 +113,49 @@ def delete_task(task_id: int):
             status_code=404, detail="task not found"
         )
     return removed_task
+
+
+from fastapi import Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from security import (
+    UserInDB,
+    fake_token_generator,
+    fakely_hash_password,
+    fake_users_db
+)
+
+
+@app.post("/token")
+async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+    user_dict = fake_users_db.get(form_data.username)
+    print(user_dict)
+    if not user_dict:
+        raise HTTPException(
+            status_code=400,
+            detail="Incorrect username or password",
+        )
+    user = UserInDB(**user_dict)
+    hashed_password = fakely_hash_password(form_data.password)
+    print(hashed_password, user.hashed_password)
+    if not hashed_password == user.hashed_password:
+        raise HTTPException(
+            status_code=400,
+            detail="Incorrect username or password",
+        )
+
+    token = fake_token_generator(user)
+
+    return {
+        "access_token": token,
+        "token_type": "bearer",
+    }
+
+
+from security import (
+    get_user_from_token,
+    User
+)
+
+@app.get("/users/me", response_model=User)
+def read_users_me(current_user: User = Depends(get_user_from_token)):
+    return current_user
