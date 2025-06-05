@@ -24,3 +24,56 @@ In this chapter, we’re going to cover the following recipes:
 $ pip install passlib[bcrypt]
 $ pip install sqlalchemy>=2.0.0
 $ pip install python-jose[cryptography]
+
+
+for data migration in slq alchemy
+
+
+pip install alembic
+alembic init alembic
+
+Open the alembic.ini file and find the line:
+
+ini CopyEdit
+sqlalchemy.url = sqlite:///./your.db
+
+
+In alembic/env.py, find this block:
+
+# from myapp import mymodel
+# target_metadata = mymodel.Base.metadata
+
+
+After adding or changing a field (like role in User), run:
+
+alembic revision --autogenerate -m "Add role column to users"
+
+
+Step 6: Apply the Migration to Update the DB
+
+alembic upgrade head
+
+
+example with default value
+
+def upgrade() -> None:
+    op.add_column(
+        'users',
+        sa.Column(
+            'role',
+            sa.Enum('basic', 'premium', name='role'),
+            nullable=False,
+            server_default='basic'  # <-- Add this ----------- this line
+        )
+    )
+
+
+
+Bonus Tip: Clean Alembic Revisions (for dev only)
+
+alembic downgrade base  # rollback all
+rm alembic/versions/*.py  # delete old migration scripts
+alembic revision --autogenerate -m "init roles"
+alembic upgrade head
+
+http://127.0.0.1:8000/github/auth/token
