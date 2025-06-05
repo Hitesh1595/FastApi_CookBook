@@ -20,6 +20,8 @@ from responses import (
     UserCreateResponse,
 )
 import security
+import premium_access
+import rbac
 
 
 @asynccontextmanager
@@ -35,6 +37,8 @@ app = FastAPI(
     title="Saas application", lifespan=lifespan
 )
 app.include_router(security.router)
+app.include_router(premium_access.router)
+app.include_router(rbac.router)
 
 
 

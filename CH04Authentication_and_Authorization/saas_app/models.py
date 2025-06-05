@@ -1,3 +1,5 @@
+from enum import Enum
+
 from sqlalchemy.orm import (
     DeclarativeBase,
     Mapped,
@@ -7,6 +9,11 @@ from sqlalchemy.orm import (
 
 class Base(DeclarativeBase):
     pass
+
+
+class Role(str, Enum):
+    basic = "basic"
+    premium = "premium"
 
 
 class User(Base):
@@ -21,3 +28,7 @@ class User(Base):
         unique=True, index=True
     )
     hashed_password: Mapped[str]
+
+    role: Mapped[Role] = mapped_column(
+        default=Role.basic
+    )

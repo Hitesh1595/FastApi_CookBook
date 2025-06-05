@@ -15,14 +15,16 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from models import User
+from models import Role
 
 
-def add_user(session: Session, username: str, password: str, email: str)-> User | None:
+def add_user(session: Session, username: str, password: str, email: str, role: Role = Role.basic) -> User | None:
     hashed_password = pwd_context.hash(password)
     db_user = User(
         username=username,
         email=email,
         hashed_password=hashed_password,
+        role=role,
     )
     session.add(db_user)
     try:
