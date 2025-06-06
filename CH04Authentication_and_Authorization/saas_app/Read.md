@@ -24,6 +24,7 @@ In this chapter, we’re going to cover the following recipes:
 $ pip install passlib[bcrypt]
 $ pip install sqlalchemy>=2.0.0
 $ pip install python-jose[cryptography]
+$ pip install pyotp -- > time based one time password
 
 
 for data migration in slq alchemy
@@ -77,3 +78,21 @@ alembic revision --autogenerate -m "init roles"
 alembic upgrade head
 
 http://127.0.0.1:8000/github/auth/token
+
+
+
+
+
+
+Whatever your choice is, put security first and follow those practices to make your session secure
+and efficient:
+• Secure cookies: Mark session cookies as Secure, HttpOnly, and SameSite to protect
+  against cross-site request forgery (CSRF) and cross-site scripting (XSS) attacks
+• Session expiry: Implement session expiry both in your session store and by setting a maximum
+  age on the cookie
+• Regenerate Session ID: Regenerate session IDs upon login to prevent session fixation attacks
+• Monitor sessions: Implement mechanisms to monitor active sessions and detect anomalies
+
+Response cookies:
+https://fastapi.tiangolo.com/advanced/response-cookies/
+https://www.starlette.io/responses/#set-cookie

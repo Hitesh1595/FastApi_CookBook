@@ -32,3 +32,4 @@ class User(Base):
     role: Mapped[Role] = mapped_column(
         default=Role.basic
     )
+    totp_secret: Mapped[str] = mapped_column(nullable=True)
