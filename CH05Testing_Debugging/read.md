@@ -1,80 +1,126 @@
-In this chapter we’re going to cover the following recipes:
-    • Setting up testing environments
-    • Writing and running unit tests
-    • Testing API endpoints
-    • Handling logging messages
-    • Debugging techniques
-    • Performance testing for high traffic application
+# Testing in FastAPI with Pytest
 
-$ pip install pytest pytest-asyncio httpx
-$ pip install pytest-cov
+This chapter covers the following testing topics:
 
+* Setting up testing environments
+* Writing and running unit tests
+* Testing API endpoints
+* Handling logging messages
+* Debugging techniques
+* Performance testing for high-traffic applications
 
-As a first check of the environment, we can try to collect the tests. From the   protoapp root after creating pytest.ini file to check
+---
 
-project folder run:
-    $ pytest –-collect-only
+## Installation
 
+```bash
+pip install pytest pytest-asyncio httpx
+pip install pytest-cov
+```
 
-The recipe has shown how to configure pytest within a FastAPI project with some of the good practices. Feel free to dig deeper into the Pytest official documentation at the links:
-    • Pytest configuration: https://docs.pytest.org/en/stable/reference/customize.html
-    • Setup PYTHONPATH in Pytest: https://docs.pytest.org/en/7.1.x/explanationpythonpath.html
-    • Pytest good practices: https://docs.pytest.org/en/7.1.x/explanation/goodpractices.html
+---
 
+## First Check: Collecting Tests
 
-for fixtures
+After creating a `pytest.ini` file in the project root, you can verify your test discovery by running:
 
-https://docs.pytest.org/en/7.1.x/reference/fixtures.html.
+```bash
+pytest --collect-only
+```
 
+---
 
-As you already know, all unit tests can be run from the terminal with the command:
-    $ pytest
+## Useful Pytest Documentation
 
-However, a test can be run individually according to the test call syntax:
-    $ pytest <test_module>.py::<test_name>
+* [Pytest Configuration](https://docs.pytest.org/en/stable/reference/customize.html)
+* [Setting PYTHONPATH](https://docs.pytest.org/en/7.1.x/explanationpythonpath.html)
+* [Good Practices](https://docs.pytest.org/en/7.1.x/explanation/goodpractices.html)
+* [Fixtures](https://docs.pytest.org/en/7.1.x/reference/fixtures.html)
 
-For example, if we want to run the test function test_read_main_client, run:
-    $ pytest tests/test_main.py::test_read_main
+---
 
+## Running Tests
 
-# want to run only one integration tests
-# add this and in pytest.ini file add
+Run all unit tests:
 
-# markers =
-#     integration: marks tests as integration
+```bash
+pytest
+```
 
-# then run pytest -m integration -vv
+Run a specific test:
 
-@pytest.mark.integration to the method
+```bash
+pytest <test_module>.py::<test_function>
+```
 
+Example:
 
+```bash
+pytest tests/test_main.py::test_read_main
+```
 
-To use it with pytest, if you didn’t install the packages with the requirements.txt, you need
-to install pytest-cov package:
-$ pip install pytest-cov
+---
 
+## Running Only Integration Tests
 
+To mark a test as an integration test, add a marker:
 
-$ pytest --cov protoapp tests
-$ pytest --cov app      test_folder_name
+```python
+@pytest.mark.integration
+```
 
-You will see a table in the output listing the coverage percentage for each module:
-Name                   Stmts   Miss  Cover
-------------------------------------------
-protoapp\database.py      16      0   100%
-protoapp\main.py          37      4    89%
-protoapp\schemas.py        8      8     0%
-------------------------------------------
-TOTAL                     61     12    80%
+Then, in your `pytest.ini` file, add:
 
+```ini
+[pytest]
+markers =
+    integration: marks tests as integration
+```
 
-In addition, a file named .coverage has been created. This is a binary file containing data on the
-test coverage and that can be used with additional tools to generate reports out of it.
-For example, if you run:
+Run only integration tests:
 
-$ coverage html --> generate html
+```bash
+pytest -m integration -vv
+```
 
+---
 
-It will create a folder htmlcov with an index.html page containing the coverage page and you
-can visualize it by opening it with a browser.
+## Code Coverage
 
+If you haven't installed it via `requirements.txt`, install the `pytest-cov` package:
+
+```bash
+pip install pytest-cov
+```
+
+Run coverage on your tests:
+
+```bash
+pytest --cov protoapp tests
+# or
+pytest --cov app test_folder_name
+```
+
+Sample output:
+
+```
+Name                  Stmts   Miss  Cover
+-----------------------------------------
+protoapp/database.py     16      0   100%
+protoapp/main.py         37      4    89%
+protoapp/schemas.py       8      8     0%
+-----------------------------------------
+TOTAL                    61     12    80%
+```
+
+---
+
+## Generating HTML Coverage Report
+
+To generate an HTML report:
+
+```bash
+coverage html
+```
+
+This creates a folder `htmlcov` with an `index.html` page. Open it in a browser to visualize the report.
