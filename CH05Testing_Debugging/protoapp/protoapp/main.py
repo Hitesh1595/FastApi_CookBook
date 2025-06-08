@@ -7,8 +7,20 @@ from fastapi import (
     status,
 )
 from pydantic import BaseModel
+from protoapp.logging import client_logger
 
 app = FastAPI()
+
+
+@app.middleware("http")
+async def log_request(request: Request, call_next):
+    client_logger.info(
+        f"method: {request.method},"
+        f"call: {request.url.path}, "
+        f"ip: {request.client.host} "
+    )
+    response = await call_next(request)
+    return response
 
 
 @app.get("/home")
