@@ -11,8 +11,14 @@ from app.db_connection import get_db_session, get_engine
 from app.operations import (
     get_ticket,
     create_ticket,
+    update_ticket,
     update_ticket_price,
     delete_ticket,
+    # get_all_tickets_for_show,
+
+
+    create_event,
+
 
 )
 
@@ -65,6 +71,36 @@ async def create_ticket_route(
     return {"ticket_id": ticket_id}
 
 
+class TicketDetailsUpateRequest(BaseModel):
+    seat: str | None = None
+    ticket_type: str | None = None
+
+
+class TicketUpdateRequest(BaseModel):
+    price: float | None = Field(None, ge=0)
+
+@app.put("/ticket/{ticket_id}")
+async def update_ticket_route(
+    ticket_id: int,
+    ticket_update: TicketUpdateRequest,
+    db_session: Annotated[
+        AsyncSession, Depends(get_db_session)
+    ],
+):
+    update_dict_args = ticket_update.model_dump(
+        exclude_unset=True
+    )
+
+    updated = await update_ticket(
+        db_session, ticket_id, update_dict_args
+    )
+    if not updated:
+        raise HTTPException(
+            status_code=404, detail="Ticket not found"
+        )
+    return {"detail": "Update Ticket"}
+
+
 
 @app.put("/ticket/{ticket_id}/price/{new_price}")
 async def update_ticket_price_route(
@@ -93,3 +129,30 @@ async def delete_ticket_route(
             status_code=404, detail="Ticket not found"
         )
     return {"detail": "Ticket removed"}
+
+
+class TicketResponse(TicketRequest):
+    id: int
+
+
+# @app.get("/tickets/{show}", response_model=list[TicketResponse],)
+# async def get_tickets_for_show(
+#     db_session: Annotated[AsyncSession, Depends(get_db_session)],
+#     show: str,
+# ):
+#     tickets = await get_all_tickets_for_show(
+#         db_session, show
+#     )
+#     return tickets
+
+
+@app.post("/event", response_model=dict[str, int])
+async def create_event_route(
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    event_name: str,
+    nb_tickets: int | None = 0,
+):
+    event_id = await create_event(
+        db_session, event_name, nb_tickets
+    )
+    return {"event_id": event_id}
