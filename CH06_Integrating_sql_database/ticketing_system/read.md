@@ -69,3 +69,42 @@ This will automatically rebuild the .database.db file with the tickets table in 
 
 for history check
 alembic history --verbose
+
+
+
+<!-- query------------------------------------------------------- -->
+
+Improving SQL queries is a process that involves several steps. As with most optimization processes,
+many steps are specific to the use case, but there are general rules that can help optimize SQL queries
+overall, such as the following:
+• Avoid N+1 queries
+• Use the JOIN statement sparingly
+• Minimize data to fetch
+We will apply each with a significant example.
+
+
+IMPORTANT
+
+Different SQL databases may have different strengths and weaknesses in handling these factors,
+depending on their architecture and features. For example, some SQL databases may support partitioning,
+sharding, replication, or distributed processing, which can improve the scalability and availability of
+data. Some SQL databases may offer more advanced query optimization techniques, such as cost-based
+optimization, query rewriting, or query caching, which can reduce the execution time and resource
+consumption of queries. Some SQL databases may implement different storage engines, transaction
+models, or index types, which can affect the performance and consistency of data operations.
+Therefore, when choosing an SQL database for a specific application, it is important to consider the
+characteristics and requirements of the data and queries, and compare the capabilities and limitations of
+the available SQL databases. A good way to do this is to benchmark the performance of SQL databases
+using realistic datasets and queries and measure the relevant metrics, such as throughput, latency,
+accuracy, and reliability. By doing so, one can find the optimal SQL database for the given scenario
+and also identify potential areas for improvement in the database design and query formulation.
+
+
+
+
+Securing sensitive data in SQL databases
+
+
+Sensitive data, such as personal information, financial records, or confidential documents, is often stored in SQL databases for various applications and purposes.
+
+$ pip install cryptography

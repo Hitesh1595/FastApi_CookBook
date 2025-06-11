@@ -1,12 +1,16 @@
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy import (
     select,
     update,
-    delete
+    delete,
 )
+from sqlalchemy.orm import joinedload, load_only
+
 
 from app.database import Ticket, Event
 from app.database import TicketDetails
+from app.database import Sponsor, Sponsorship
 
 
 async def create_ticket(
@@ -150,3 +154,59 @@ async def create_event(db_session: AsyncSession, event_name: str, nb_tickets: in
         db_session.add_all(tickets)
         await db_session.commit()
     return event_id
+
+
+async def create_sponsor(db_session: AsyncSession, sponsor_name: str,) -> int:
+    async with db_session.begin():
+        sponsor = Sponsor(name=sponsor_name)
+        db_session.add(sponsor)
+        try:
+            await db_session.flush()
+        except IntegrityError:
+            return
+        sponsor_id = sponsor.id
+        await db_session.commit()
+    return sponsor_id
+
+
+async def get_events_with_sponsors(db_session: AsyncSession) -> list[Event]:
+    query = select(Event).options(
+        joinedload(Event.sponsors)
+    )
+    async with db_session as session:
+        result = await session.execute(query)
+        events = result.scalars().all()
+
+    return events
+
+
+async def get_event_sponsorships_with_amount(db_session: AsyncSession, event_id: int):
+    query = (
+        select(Sponsor.name, Sponsorship.amount)
+        .join(
+            Sponsorship,
+            Sponsorship.sponsor_id == Sponsor.id,
+        )
+        .where(Sponsorship.event_id == event_id)
+        .order_by(Sponsorship.amount.desc())
+    )
+    async with db_session as session:
+        result = await session.execute(query)
+        sponsor_contributions = result.fetchall()
+    return sponsor_contributions
+
+
+async def get_events_tickets_with_user_price(db_session: AsyncSession, event_id: int) -> list[Ticket]:
+    query = (
+        select(Ticket)
+        .where(Ticket.event_id == event_id)
+        .options(
+            load_only(
+                Ticket.id, Ticket.user, Ticket.price
+            )
+        )
+    )
+    async with db_session as session:
+        result = await session.execute(query)
+        tickets = result.scalars().all()
+    return tickets

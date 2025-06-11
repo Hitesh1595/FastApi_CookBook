@@ -18,6 +18,7 @@ from app.operations import (
 
 
     create_event,
+    create_sponsor
 
 
 )
@@ -156,3 +157,33 @@ async def create_event_route(
         db_session, event_name, nb_tickets
     )
     return {"event_id": event_id}
+
+
+@app.post(
+    "/sponsor/{sponsor_name}",
+    response_model=dict[str, int],
+    responses={
+        200: {
+            "description": "Successful Response",
+            "content": {
+                "application/json": {
+                    "example": {"sponsor_id": 12345}
+                }
+            },
+        }
+    },
+)
+async def register_sponsor(
+    db_session: Annotated[AsyncSession, Depends(get_db_session)],
+    sponsor_name: str,
+):
+    sponsor_id = await create_sponsor(
+        db_session, sponsor_name
+    )
+    if not sponsor_id:
+        raise HTTPException(
+            status_code=400,
+            detail="Sponsor not created",
+        )
+
+    return {"sponsor_id": sponsor_id}
