@@ -4,6 +4,7 @@ from sqlalchemy import (
     select,
     update,
     delete,
+    and_,
 )
 from sqlalchemy.orm import joinedload, load_only
 
@@ -210,3 +211,20 @@ async def get_events_tickets_with_user_price(db_session: AsyncSession, event_id:
         result = await session.execute(query)
         tickets = result.scalars().all()
     return tickets
+
+
+async def sell_ticket_to_user(db_session: AsyncSession, ticket_id: int, user: str)-> bool:
+    ticket_query = (
+        update(Ticket)
+        .where(
+            and_(Ticket.id == ticket_id, Ticket.sold == False)
+        )
+        .values(user=user, sold=True)
+    )
+
+    async with db_session as session:
+        result = await session.execute(ticket_query)
+        await session.commit()
+        if result.rowcount == 0:
+            return False
+    return True
