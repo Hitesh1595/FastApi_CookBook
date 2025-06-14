@@ -16,6 +16,15 @@ In this chapter, we're going to cover the following recipes:
 
 ---
 
+## Installation
+
+```bash
+pip install "elasticsearch>=8,<9"
+pip install redis
+```
+
+---
+
 ## Working with MongoDB Indexes
 
 ### Performance Optimization
@@ -67,6 +76,49 @@ Beyond data masking, additional security layers include:
 
 ---
 
+## Elasticsearch Integration
+
+### System Installation
+
+For Ubuntu/Debian systems, follow the installation guide:
+* [Install Elasticsearch on Ubuntu](https://phoenixnap.com/kb/install-elasticsearch-ubuntu)
+
+### Docker Installation (Alternative)
+
+```bash
+docker run -d --name elasticsearch \
+  -p 9200:9200 -p 9300:9300 \
+  -e "discovery.type=single-node" \
+  -e "xpack.security.enabled=false" \
+  elasticsearch:8.11.0
+```
+
+### Verify Installation
+
+```bash
+curl http://localhost:9200
+```
+
+---
+
+## Redis for Caching
+
+### Installation Requirements
+
+To follow along with Redis caching, you need a running Redis instance reachable at `http://localhost:6379`.
+
+### FastAPI Cache Library
+
+There is a promising library `fastapi-cache` which makes caching in FastAPI very easy:
+* [FastAPI Cache GitHub Repository](https://github.com/long2ice/fastapi-cache)
+
+**Features:**
+* Supports several caching databases including Redis and in-memory caching
+* Simple endpoint decorators for caching parameters
+* Configurable time to live, encoder, and cache response headers
+
+---
+
 ## Additional Resources
 
 ### MongoDB Documentation
@@ -76,6 +128,19 @@ Beyond data masking, additional security layers include:
 * [MongoDB Aggregations Quickstart](https://www.mongodb.com/developer/languages/python/python-quickstart-aggregation/)
 * [MongoDB Views Documentation](https://www.mongodb.com/docs/manual/core/views/)
 * [Aggregation Stage Reference](https://www.mongodb.com/docs/manual/reference/operator/aggregation-pipeline/)
+
+### Elasticsearch Documentation
+
+* [Elasticsearch Python Client](https://www.elastic.co/guide/en/elasticsearch/client/python-api/current/index.html)
+* [Using Asyncio with Elasticsearch](https://elasticsearch-py.readthedocs.io/en/7.x/async.html)
+* [Index API](https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-index_.html)
+* [Mapping Guide](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html)
+* [Query DSL](https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl.html)
+
+### Redis Documentation
+
+* [Redis Python Client](https://redis.io/docs/connect/clients/python/)
+* [Redis Python Asynchronous Client](https://redis-py.readthedocs.io/en/stable/examples/asyncio_examples.html)
 
 ### Examples and Advanced Resources
 

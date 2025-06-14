@@ -1,9 +1,14 @@
 from contextlib import asynccontextmanager
-from app.db_connection import ping_mongo_db_server, ping_elasticsearch_server
+from app.db_connection import (
+    ping_mongo_db_server,
+    ping_elasticsearch_server,
+    ping_redis_server
+)
 from app import third_point_endpoint
 from pydantic import BaseModel
 
 from fastapi import FastAPI, HTTPException
+from app import main_search
 
 
 
@@ -11,6 +16,7 @@ from fastapi import FastAPI, HTTPException
 async def lifespan(app: FastAPI):
     await ping_mongo_db_server(),
     await ping_elasticsearch_server()
+    await ping_redis_server()
     db = mongo_database()
     # creating indexin mongo db
     await db.songs.create_index({"album.release_year": -1})
@@ -21,6 +27,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(third_point_endpoint.router)
+app.include_router(main_search.router)
 
 from bson import ObjectId
 from fastapi import Body, Depends
