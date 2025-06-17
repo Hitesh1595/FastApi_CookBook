@@ -1,15 +1,20 @@
+import logging
 from app.ws_manager import ConnectManager
 from fastapi import Request
 conn_manager = ConnectManager()
 
 from fastapi import APIRouter
 
+
+logger = logging.getLogger("uvicorn")
+
+
 router = APIRouter()
 
 
 from fastapi import WebSocket, WebSocketDisconnect
 
-
+@router.websocket("/chatroom/{username}")
 async def chatroom_endpoint(websocket: WebSocket, username: str):
     await conn_manager.connect(websocket)
     await conn_manager.broadcast(f"{username} joined the chat", exclude=websocket)
@@ -20,11 +25,12 @@ async def chatroom_endpoint(websocket: WebSocket, username: str):
             await conn_manager.broadcast(
                 {"sender": username, "message": data}
             )
-
+            logger.info(f"{username} Joined the chat")
             await conn_manager.send_personal_message(
                 {"sender": "you", "message": data},
                 websocket
             )
+            logger.info(f"{username} says: {data}")
 
     except WebSocketDisconnect:
         conn_manager.disconnnect(websocket)
@@ -32,6 +38,8 @@ async def chatroom_endpoint(websocket: WebSocket, username: str):
             "sender": "system",
             "message": f"Client #{username} left the chat"
         })
+
+        logger.info(f"{username} Left the Chat")
 
 
 from fastapi.responses import HTMLResponse
